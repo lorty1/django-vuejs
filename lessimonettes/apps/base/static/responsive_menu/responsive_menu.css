@@ -1,0 +1,93 @@
+.container.menu-open {
+  position: relative;
+  /*right:230px;*/
+  -webkit-transform: translate(-230px, 0);
+  -moz-transform: translate(-230px, 0);
+  -ms-transform: translate(-230px, 0);
+  -o-transform: translate(-230px, 0);
+  transform: translate(-230px, 0);
+  /*      .animation( open 0.6s linear once); */
+  overflow-y: visible;
+}
+.container #nav {
+  height: 50px;
+  text-align: center;
+  margin: 0;
+  padding: 25px 0 0;
+}
+.container #nav.open .bars .bar1 {
+  -webkit-transform: rotate(45deg) translate(8px, 7px);
+  -moz-transform: rotate(45deg) translate(8px, 7px);
+  -ms-transform: rotate(45deg) translate(8px, 7px);
+  -o-transform: rotate(45deg) translate(8px, 7px);
+  transform: rotate(45deg) translate(8px, 7px);
+}
+.container #nav.open .bars .bar2 {
+  opacity: 0;
+}
+.container #nav.open .bars .bar3 {
+  -webkit-transform: rotate(-45deg) translate(7px, -6px);
+  -moz-transform: rotate(-45deg) translate(7px, -6px);
+  -ms-transform: rotate(-45deg) translate(7px, -6px);
+  -o-transform: rotate(-45deg) translate(7px, -6px);
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+.container #nav li {
+  display: inline-block;
+}
+.container #nav li.bars {
+  display: none;
+  position: absolute;
+  left: -55px;
+  top: 0;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 15px 15px 10px;
+}
+.container #nav li.bars .bar1,
+.container #nav li.bars .bar2,
+.container #nav li.bars .bar3 {
+  width: 25px;
+  height: 2px;
+  background: #FFF;
+  margin-bottom: 8px;
+  -webkit-transition: all 0.6s;
+  -moz-transition: all 0.6s;
+  -o-transition: all 0.6s;
+  transition: all 0.6s;
+}
+.container #nav li a {
+  display: block;
+  color: #fff;
+  font-size: 18px;
+  padding: 10px 25px;
+  border: 2px solid transparent;
+  text-decoration: none;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.container #nav li a:hover {
+  border: 2px solid #fff;
+}
+
+
+@media (max-width: 480px) {
+  .container #nav {
+    width: 230px;
+    max-width: 480px;
+    height: inherit;
+    position: absolute;
+    top: 0;
+    right: -230px;
+  }
+  .container #nav li.bars {
+    display: block;
+  }
+  .container #nav li a:hover {
+    border-color: transparent;
+    color: #5cd;
+  }
+}
+

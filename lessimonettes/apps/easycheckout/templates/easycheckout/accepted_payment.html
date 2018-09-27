@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block content %}
+<section id="reservations">
+  <section id="tab4_payment_return">
+    <h1 class="txtcenter">Votre commande a été validée.<br />Merci pour votre commande</h1>
+  </section>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+gtag('require', 'ecommerce');
+gtag('ecommerce:addTransaction', {
+  'id': '{{ order.pk }}',                     // Transaction ID. Required.
+  'affiliation': 'Envoie du steak',   // Affiliation or store name.
+  'revenue': '{{ order.total_product|divide|point }}',               // Grand Total.
+  'shipping': '{{order.get_delivery }}',
+  'currency': 'EUR'  // local currency code.
+   /*,                  // Shipping.
+  'tax': '1.29'                     // Tax. */
+});
+{% for i in order.get_items %}
+gtag('ecommerce:addItem', {
+  'id': '{{ order.pk }}',                     // Transaction ID. Required.
+  'name': '{{ i.product.title }}',    // Product name. Required.
+  'sku': '{{ i.product.product_code }}',                 // SKU/code.
+  'category': '{{ i.product.category.title }}',         // Category or variation.
+  'quantity': '{{ i.quantity }}'                   // Quantity.
+});
+{% endfor %}
+gtag('ecommerce:send');
+  cart.empty();
+  localStorage.clear();
+</script>
+{% endblock %}

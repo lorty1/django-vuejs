@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section id="order">
+  <section>
+    <h1 class="txtcenter">Paiement de votre commande</h1>
+    <p class="txtcenter">Vous pouvez payer votre commande avec notre partenaire Crédit Agricole.<br />
+       La transaction est sécurisée par leur logiciel e-transaction. Aucun numéro de carte ne sera enregistré dans la base de données de notre site Internet.</p>
+    <div id="payboxForm" style="width:50%; margin-left:25%;">
+    {{ paybox_form|safe }}
+    </div>
+    
+  </section>
+  </section>
+{% endblock %}
+
+{% block script %}
+{% endblock %}
+
+
+{% block footer %}
+{% if "landingpage" in path %}
+  <footer id="footer">
+		<div>
+				 <img class="logo" src="/static/img/logo_simple_EDS.svg" />
+	  </div>
+	</footer>
+{% else %}
+  {% include 'footer.html' %}
+{% endif %}
+{% endblock %}
+
+{% block facebook %}
+{% if not "landingpage" in path %}
+  {% include 'facebook.html' %}
+{% endif %}
+{% endblock %}
+
+
+

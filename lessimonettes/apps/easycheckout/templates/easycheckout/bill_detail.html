@@ -1,0 +1,299 @@
+<!doctype html>
+{% load currency %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Facture n°{{ object.reference }}</title>
+    
+    <style>
+    .invoice-box {
+        max-width: 800px;
+        margin: auto;
+        padding: 30px;
+        border: 1px solid #eee;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+        font-size: 16px;
+        line-height: 24px;
+        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        color: #555;
+    }
+    
+    .invoice-box table {
+        width: 100%;
+        line-height: inherit;
+        text-align: left;
+    }
+    
+    .invoice-box table td {
+        padding: 5px;
+        vertical-align: top;
+    }
+    
+    .invoice-box table tr td:nth-child(2) {
+        text-align: right;
+    }
+    
+    .invoice-box table tr.top table td {
+        padding-bottom: 20px;
+    }
+    
+    .invoice-box table tr.top table td.title {
+        font-size: 45px;
+        line-height: 45px;
+        color: #333;
+    }
+    
+    .invoice-box table tr.information table td {
+        padding-bottom: 40px;
+    }
+    
+    .invoice-box table tr.heading td {
+        background: #eee;
+        border-bottom: 1px solid #ddd;
+        font-weight: bold;
+    }
+    
+    .invoice-box table tr.details td {
+        padding-bottom: 20px;
+    }
+    
+    .invoice-box table tr.itembis td {
+       padding-left:2%;
+    }
+    .invoice-box table tr.item td{
+        border-bottom: 1px solid #eee;
+    }
+    
+    .invoice-box table tr.item.last td {
+        border-bottom: none;
+    }
+    
+    .invoice-box table tr.total td:nth-child(2) {
+        border-top: 2px solid #eee;
+        font-weight: bold;
+    }
+   .total { text-align:right; } 
+    @media only screen and (max-width: 600px) {
+        .invoice-box table tr.top table td {
+            width: 100%;
+            display: block;
+            text-align: center;
+        }
+        
+        .invoice-box table tr.information table td {
+            width: 100%;
+            display: block;
+            text-align: center;
+        }
+    }
+    
+    /** RTL **/
+    .rtl {
+        direction: rtl;
+        font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    }
+    
+    .rtl table {
+        text-align: right;
+    }
+    
+    .rtl table tr td:nth-child(2) {
+        text-align: left;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td class="title">
+                                <img src="/static/img/logo_hexa_grey_transparent.png" style="width:100%; max-width:300px;">
+                            </td>
+                            
+                            <td>
+                                Facture n°{{object.reference }}<br>
+                                Date: {{object.date|date:'d/m/Y'}}<br>
+                                Paiement: immédiat
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <tr class="information">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td>
+                                SARL Envoie du Steak<br>
+                                Cré@Vallée Nord<br>
+                                251, boulevard des Saveurs<br />
+                                24660 Coulounieix-Chamiers<br />
+                                TVA: FR65832348999 00018<br />
+                                Siren: 832348999<br />
+                                Capital: 15000 euros
+                            </td>
+                            
+                            <td>
+                              {% if object.order.billing_address %}
+                                {{object.order.billing_address.name }}<br>
+                                {{object.order.billing_address.address1 }}<br>
+                                {% if object.order.billing_address.address2 %} {{object.order.billing_address.address2 }}{% endif %}<br>
+                                {{object.order.billing_address.zip_code }} {{object.order.billing_address.city }}<br>
+                              {% else %}
+                                {{object.order.shipping_address.name }}<br>
+                                {{object.order.shipping_address.address1 }}<br>
+                                {% if object.order.shipping_address.address2 %} {{object.order.shipping_address.address2 }}{% endif %}<br>
+                                {{object.order.shipping_address.zip_code }} {{object.order.shipping_address.city }}<br>
+                              {% endif %}
+                                {{object.order.user.email }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <tr class="heading">
+                <td>
+                    Méthode de paiement
+                </td>
+                
+                <td>
+                    Carte Bancaire
+                </td>
+            </tr>
+            
+            <tr class="details">
+                <td>
+                    CB
+                </td>
+                
+                <td>
+                    {{ object.get_total_amount|floatformat:2 }} €
+                </td>
+            </tr>
+            
+            <tr class="heading">
+                <td>
+                    Article
+                </td>
+                
+                <td>
+                    Prix
+                </td>
+            </tr>
+            
+             <tr><td><b>Panier cowfunding</b></td><td></td></tr>
+            <tr class="item">
+                <td>
+                    <img src="/static/img/cowfunding_white_ardoise.png" width=9% /> {{ object.order.total_quantity_cowfunding }} Colis équilibre :</td>
+                
+                <td>
+                      {{ object.order.total_cowfunding }} €
+                </td>
+            </tr>
+
+                {% for i in object.order.get_items %}
+                   {% if i.orientation.pk == 1 %}
+            <tr class="item itembis">
+                <td>
+                    <img src="/{{ i.product.cow_orientation.image_thumbnail }}" /> {{ i.quantity }} {{ i }} 
+                </td>
+                
+                <td>
+                   {% if i.orientation.pk != 1 %}
+                      {{ i.product.price }} €
+                   {% endif %}
+                </td>
+            </tr>
+                {% endif %}
+                {% endfor %}
+             <tr><td><b>Compléments cowfunding</b></td><td></td></tr>
+                {% for i in object.order.get_items %}
+                   {% if i.orientation.pk == 2 %}
+            <tr class="item">
+                <td>
+                    <img src="/{{ i.product.cow_orientation.image_thumbnail }}" /> {{ i.quantity }} {{ i }} 
+                </td>
+                
+                <td>
+                   {% if i.orientation.pk != 1 %}
+                      {{ i.get_price }} €
+                   {% endif %}
+                </td>
+            </tr>
+                {% endif %}
+                {% endfor %}
+             <tr><td><b>Stocks</b></td><td></td></tr>
+                {% for i in object.order.get_items %}
+                   {% if i.orientation.pk == 3 %}
+            <tr class="item">
+                <td>
+                    <img src="{{ i.product.get_last_image_thumb }}" /> {{ i.quantity }} {{ i }} 
+                </td>
+                
+                <td>
+                   {% if i.orientation.pk != 1 %}
+                      {{ i.product.price }}
+                   {% endif %}
+                </td>
+            </tr>
+                {% endif %}
+                {% endfor %}
+             <tr><td>Conserves</td><td></td></tr>
+                {% for i in object.order.get_items %}
+                   {% if i.orientation.pk == 5 %}
+            <tr class="item">
+                <td>
+                    <img src="{{ i.product.get_last_image_thumb }}" /> {{ i.quantity }} {{ i }} - poids de la pièce {{ i.basis_weight }}g
+                </td>
+                
+                <td>
+                   {% if i.orientation.pk != 1 %}
+                      {{ i.product.price }} €
+                   {% endif %}
+                </td>
+            </tr>
+                {% endif %}
+                {% endfor %}
+
+            <tr class="total">
+                
+                <td>
+                   Total produits HT : {{ object.total_product_ht|floatformat:2 }}€ <br />
+                   TVA 5,5% : {{ object.total_product_tva|floatformat:2 }}€<br />
+                   Total TTC : {{ object.get_total_product|floatformat:2  }}€ <br />
+                </td>
+            </tr>
+
+            <tr class="total">
+                
+                <td>
+                   Frais de livraison HT : {{ object.total_delivery_ht|floatformat:2 }}€ <br />
+                   TVA 20% : {{ object.total_delivery_tva|floatformat:2 }}€<br />
+                   Total TTC : {{ object.get_total_delivery|floatformat:2 }}€ <br />
+                </td>
+            </tr>
+            <tr class="total">
+                
+                <td>
+                   Total général HT : {{ object.get_total_invoice_ht|floatformat:2 }}€<br />
+                   Total général TTC : {{ object.get_total_invoice_ttc|floatformat:2 }}€<br />
+             {% if object.credit %} 
+                   Avoir: -{{ object.credit|divide|floatformat:2 }}€ <br />
+            {% endif %}
+
+                   Total payé : {{ object.get_total_amount|floatformat:2 }}€
+                </td>
+           </tr>
+
+
+        </table>
+    </div>
+</body>
+</html>
+

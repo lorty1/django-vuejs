@@ -1,0 +1,34 @@
+<img style="display:block; width:50%; margin:0 auto;" src="https://www.envoiedusteak.fr/static/img/logo_hexa_grey_transparent_ab.png">
+<h1 style="text-align:center">Attention, on va envoyer !!!</h1>
+<p>Bonjour {{ user }},<br />
+<br />
+Votre commande N° <a href="https://www.envoiedusteak.fr/commande/liste/">{{ order }}</a> est prête à être expédiée.<br /> 
+La livraison est confirmée pour le {{ delivery_date }} à l'adresse suivante :<br />
+<br />
+{{ shipping_address_name }}<br />
+{{ shipping_address_address }}<br />
+{% if shipping_address_address2 %}{{ shipping_address_address2 }}<br />{% endif %}
+{{ shipping_address_zipcode }}<br />
+{{ shipping_address_city }}<br />
+{{ shipping_address_phone }}<br />
+<br />
+<p>Pour suivre les aventures de votre colis en temps réel, cliquez sur le lien suivant: <a href="https://www.chronopost.fr/fr/chrono_suivi_search?listeNumerosLT={{ chronopost }}&lang=fr&op=&form_build_id=form-eiwQhOOFYadiSnafKd_nsSITf3HefjpjjZ6w4mT1o_U&form_id=chrono_suivi_colis_block_form">{{ chronopost }}</a><br/>
+Sinon, vous pouvez vous rendre sur <a href="https://www.chronopost.fr">www.chronopost.fr</a> et renseigner votre n° de suivi.</p>
+<p>Lorsque votre commande sera prise en charge par Chronopost, vous recevrez un email vous en informant. Vous aurez alors la possibilité de modifier la date et/ou le lieu de livraison si besoin.<br />
+Le jour même de la livraison, vous recevrez un sms afin de vous prévenir de la livraison imminente.<br/>
+Chronofresh garantit un transport entre 0 et 4°C jusqu'à chez vous. N'oubliez pas ensuite de mettre vos produits au frais !</p>
+<p>Si vous avez la moindre question, n’hésitez pas à nous contacter par mail (bonjour@envoiedusteak.fr), nous nous ferons un plaisir de vous répondre.</p>
+<p>
+A bientôt<br />
+<br />
+Jérémie<br />
+<hr />
+<a href="https://www.envoiedusteak.fr">Redécouvrez la vraie nature de la viande</a>
+</p>
+
+<p>
+<strong>Questions fréquentes:</strong><br />
+<a href="https://www.envoiedusteak.fr/livraison/">Comment se passe la livraison ?<a/><br />
+<a href="https://www.envoiedusteak.fr/livraison/">Puis congeler la viande?</a>
+</p>
+

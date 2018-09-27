@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block head %}
+<style>
+#order {
+margin-top:5%;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div id="order" class="grid-2">
+ <div>
+<a class="profile" href="/commande/profile/" title=""><img src="/static/icons/etendre.svg" /><br />Mon profil</a>
+</div>
+ <div>
+<a class="profile" href="/commande/liste/" title=""><img src="/static/icons/edit.svg" /><br />Mes commandes</a>
+</div>
+</div>
+{% else %}
+<p class="txtcenter">Veuillez vous identifier ou créer un compte :</p>
+<div class="grid-2">
+<div id="login">
+  <h3 class="txtcenter">Identifiez-vous :</h3>
+  <form id="form" method="POST" action="/clients/login/">
+   {% csrf_token %}
+   <input autofocus="autofocus" id="id_login" name="login" placeholder="Adresse e-mail" type="email" />
+   <input id="id_password" name="password" placeholder="Mot de passe" type="password" />
+   <p class="txtcenter"><label for="id_remember">Se souvenir de moi :</label> <input id="id_remember" name="remember" type="checkbox" /></p>
+   <p class="txtcenter"><a class="txtcenter" href="/clients/password/reset/">Mot de passe oublié ?</a></p>
+      <div id="submitForm"><button type="submit" class="submit">Connexion</button></div>
+    </form>
+</div>
+<div id="registration">
+  <h3 class="txtcenter">Nouveau client :</h3>
+  <p class="txtcenter">Merci de renseigner votre email et de cliquer sur le bouton inscription.</p>
+  <form class="form" id="form" method="post" action="/clients/signup/?next=/commande/liste/">
+    {% csrf_token %}
+     <!--input autofocus="autofocus" id="id_username" maxlength="30" name="username" placeholder="Pseudonyme" type="text" / -->
+     <input id="id_email" name="email" placeholder="Adresse e-mail" type="email" />
+     <input id="id_password1" name="password1" minlength="8" placeholder="Mot de passe" type="password" />
+     <input id="id_password2" name="password2" minlength="8" placeholder="Mot de passe (à nouveau)" type="password" />
+   <div id="submitForm"><button type="submit" class="submit">Inscription</button></div>
+  </form>
+</div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+{% endblock %}

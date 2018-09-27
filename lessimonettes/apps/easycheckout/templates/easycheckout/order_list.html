@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block head %}
+<style>
+
+</style>
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div id="order">
+  {% if orders %}
+   <h1 class="txtcenter">Mes commandes</h2>
+  {% else %}
+   <h2 class="txtcenter">Vous n'avez pas encore effectué de commandes</h2>
+  {% endif %}
+  <ol>
+    {% for o in orders %}
+      <li onclick="show_order_list({{o.pk}})" style="cursor:pointer;" class="grid-2">
+          <div>
+          <h4>Commande {{o.date|date:"ymd"}}-{{ o.pk }}</h4>
+          {% if o.get_advise %}
+          <p>Vous avez donné une note de {{ o.get_advise }}/5 à cette commande.</p>
+          {% endif %}
+          <hr />
+          <div class="unvisible order{{o.pk}}">
+        {% if user.is_superuser %}
+          <b>Client: </b><br />
+             {{ o.user.email }}<br />
+          <hr />
+        {% endif %}
+          {% comment %}
+          <b>Status: </b>{{ o.status }}
+          <hr />
+          {% endcomment %}
+          <b>Suivi colis: </b><a href="https://www.chronopost.fr/fr/chrono_suivi_search?listeNumerosLT={{ o.chronofresh }}&lang=fr&op=&form_build_id=form-eiwQhOOFYadiSnafKd_nsSITf3HefjpjjZ6w4mT1o_U&form_id=chrono_suivi_colis_block_form" target="_blank">{{ o.chronofresh }}</a>
+          <hr />
+          <b>Adresse de livraison :</b><br />
+          {{ o.shipping_address.name }}<br />
+          {{ o.shipping_address.address1 }}<br />
+          {% if o.shipping_address.address2  %}{{ o.shipping_address.address2 }}<br />{% endif %}
+          {{ o.shipping_address.zip_code }}<br />
+          {{ o.shipping_address.city }}
+          <hr />
+          {% comment %}<a href="/commande/facture/{{o.get_bill}}/" target="_blank" title="Voir votre facture">Voir votre facture</a>{% endcomment %}
+{% comment %}     
+     <b>Adresse de facturation :</b><br />
+          {{ o.billing_address.name }}<br />
+          {{ o.billing_address.address1 }}<br />
+          {{ o.billing_address.address2 }}<br />
+          {{ o.billing_address.zip_code }}<br />
+          {{ o.billing_address.city }}
+{% endcomment %}     
+          </div>
+          </div>
+          <div>
+          <div class="unvisible order{{o.pk}}">
+                <ul class="order_list">
+                        <li></li>
+                         {% for i in o.get_items %}
+                            {% if i.orientation.pk == 1 %}{% if forloop.first %}<b>Cowfunding livré le : </b>{{ i.product.cow.date_shipping|date:"d/m/Y" }}<br />{% endif%}{% endif %}
+                            {% if i.orientation.pk == 1 %}{% if forloop.first %}<b>Votre viande cowfunding provient de : </b><a href="/producteurs/{{i.product.cow.customer.pk }}/">{{ i.product.cow.customer }}</a>{% endif%}{% endif %}
+          <hr />
+                            <li><img src="/{{ i.product.cow_orientation.image_thumbnail }}" />{{ i.quantity }} {{ i }}</li>
+                         {% endfor %}
+                        <li><strong>Total : {{ o.total|divide|floatformat:2 }} € </strong></li>
+                       </ul>
+          </div>
+          </div>
+      </li>
+    {% endfor %}
+  </ol>
+</div>
+
+<nav class="pagination-container">
+        <div class="pagination">
+            {% if orders.has_previous %}
+                <a  class="pagination-newer" href="?page={{ orders.previous_page_number }}">Précédent</a>
+            {% endif %}
+    
+            <a class="pagination-active">
+                Page {{ orders.number }} sur {{ orders.paginator.num_pages }}.
+            </a>
+    
+            {% if orders.has_next %}
+                <a  class="pagination-older" href="?page={{ orders.next_page_number }}">Suivant</a>
+            {% endif %}
+        </div>
+    </nav>
+{% else %}
+<p class="txtcenter">Veuillez vous identifiez-vous ou créez un compte :</p>
+<div class="grid-2">
+<div id="login">
+  <h3 class="txtcenter">Identifiez-vous :</h3>
+  <form id="form" method="POST" action="/clients/login/?next=/commande/liste/">
+   {% csrf_token %}
+   <input autofocus="autofocus" id="id_login" name="login" placeholder="Adresse e-mail" type="email" />
+   <input id="id_password" name="password" placeholder="Mot de passe" type="password" />
+   <p class="txtcenter"><label for="id_remember">Se souvenir de moi :</label> <input id="id_remember" name="remember" type="checkbox" /></p>
+   <p class="txtcenter"><a class="txtcenter" href="/clients/password/reset/">Mot de passe oublié ?</a></p>
+      <div id="submitForm"><button type="submit" class="submit">Connexion</button></div>
+    </form>
+</div>
+<div id="registration">
+  <h3 class="txtcenter">Nouveau client :</h3>
+  <p class="txtcenter">Merci de renseigner votre email et de cliquer sur le bouton inscription.</p>
+  <form class="form" id="form" method="post" action="/clients/signup/?next=/commande/liste/">
+    {% csrf_token %}
+     <input autofocus="autofocus" id="id_username" maxlength="30" name="username" placeholder="Pseudonyme" type="text" />
+     <input id="id_email" name="email" placeholder="Adresse e-mail" type="email" />
+     <input id="id_password1" name="password1" placeholder="Mot de passe" type="password" />
+     <input id="id_password2" name="password2" placeholder="Mot de passe (à nouveau)" type="password" />
+   <div id="submitForm"><button type="submit" class="submit">Inscription</button></div>
+  </form>
+</div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script>
+        $('.pagination-inner a').on('click', function() {
+            $(this).siblings().removeClass('pagination-active');
+            $(this).addClass('pagination-active');
+    })
+</script>
+<script>
+
+
+ var show_order_list = function(pk) {
+  if($('.order'+pk).css('display') == 'none') {
+     $('.order'+pk).css('display', 'block')
+   } else {
+     $('.order'+pk).css('display', 'none')
+   }
+};
+ $('.unvisible').css('display', "none")
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+  <main id="main" role="main" class="pam">
+
+    <section id="presentation">
+      {% comment %}
+      <header>
+          <h1 class="txtcenter">Lorem Ipsum</h1>
+          <p class="txtcenter">Lorem Ipsum</p>
+      </header>
+      {% endcomment %}
+
+      <section id="presentation-photo" class="grid-3 has-gutter-xl">
+        <div id="presentation-landscapes">
+          <b class="txtcenter">Sur place</b>
+          <img src="/static/img/image.png" />
+          <a href="/produits/sur-place/">Voir les gâteaux</a>
+        </div>
+        <div id="presentation-portraits">
+          <b class="txtcenter">En ligne</b>
+          <img src="/static/img/image.png" />
+          <a href="/produits/en-ligne/">Commander</a>
+        </div>
+      </section>
+    </section>
+
+    <section id="contact">
+      <h1 class="txtcenter">Contact</h1>
+      <section class="grid-2 has-gutter-xl">
+        <div id="form">
+            <form>
+                <input type="text" value="Nom et Prénom"></input>
+                <input type="text" value="Email"></input>
+                <input type="text" value="Association, structure ..."></input>
+                <input type="text" value="Téléphone"></input>
+                <input type="text" value="Message"></input>
+                <input type="submit" value="Envoyer"/> 
+            </form>
+        </div>
+        <div id="illustration">
+          <img src="/static/img/image.png" />
+        </div>
+      </section>
+    </section>
+  </main>
+{% endblock %}
+
+    {% block script %}
+    {% endblock %}

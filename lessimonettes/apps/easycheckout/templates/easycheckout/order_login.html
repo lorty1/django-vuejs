@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section id="reservations">
+  <section>
+    <h1 class="txtcenter">Votre commande</h1>
+  </section>
+  {% if user.is_authenticated %}
+  <p id="username">{{ user.username }}</p>
+  <p>Nombre de produits : {{ cart.item_count }}</p>
+<p>Total : {{ cart.total_price }}</p>
+
+  <form id="form" method="post" action="/commande/create/">{% csrf_token %}
+     <input type="hidden" id="user" name="user" value="{{ user.pk }}">
+     {% for item in cart.list_items_by_category %}
+     <div class="inline_order_set{{ forloop.counter }}">
+     <input type="hidden" id="id_order_set-{{ forloop.counter }}-product" name="order_set-{{ forloop.counter }}-product" value="{{ item.obj.pk }}">
+     <input type="hidden" id="id_order_set-{{ forloop.counter }}-quantity" name="order_set-{{ forloop.counter }}-quantity" value="{{ item.quantity }}">
+     <input type="hidden" id="id_order_set-{{ forloop.counter }}-orientation" name="order_set-{{ forloop.counter }}-orientation" value="{{ item.orientation }}">
+     </div>
+     {% endfor %}
+     <div id="phone"><input type="text" name="phone" placeholder="téléphone"></div>
+     <div id="people"><input type="text" name="people" placeholder="nombre de personnes"></div>
+     <div id="name"><input type="text" name="name" placeholder="nom du groupe"></div>
+     <div id="submitForm"><button type="submit" class="submit">Valider votre commande</button></div>
+  </form>
+  {% else %}
+  <section id="">
+    <p class="txtcenter">Pour continuer votre commande, identifiez-vous ou créez un compte :</p>
+    <div class="grid-2">
+    <div id="login">
+      <h3 class="txtcenter">Identifiez-vous :</h3>
+      <form id="form" method="POST" action="/clients/login/?next=/commande/resume/">
+       {% csrf_token %}
+       <input autofocus="autofocus" id="id_login" name="login" placeholder="Adresse e-mail" type="email" />
+       <input id="id_password" name="password" placeholder="Mot de passe" type="password" />
+       <p class="txtcenter"><label for="id_remember">Se souvenir de moi :</label> <input id="id_remember" name="remember" type="checkbox" /></p>
+       <p class="txtcenter"><a class="txtcenter" href="/clients/password/reset/">Mot de passe oublié ?</a></p>
+          <div id="submitForm"><button type="submit" class="submit">Connexion</button></div>
+        </form>
+    </div>
+    <div id="registration">
+      <h3 class="txtcenter">Nouveau client :</h3>
+    {% if 'landingpage' in path %}
+      <form class="form" id="form" method="post" action="/clients/signup/?next=/commande/landingpage/resume/">
+    {% else %}
+      <form class="form" id="form" method="post" action="/clients/signup/?next=/commande/resume/">
+    {% endif %}
+        {% csrf_token %}
+         <!-- input id="id_username" maxlength="30" name="username" placeholder="Pseudonyme" type="text" /> -->
+         <input autofocus="autofocus"  id="id_email" name="email" placeholder="Adresse e-mail" type="email" />
+         <input id="id_password1" name="password1" minlength="8" placeholder="Mot de passe" type="password" />
+      <span class="error" aria-live="polite"></span>
+         <input id="id_password2" name="password2" minlength="8" placeholder="Mot de passe (à nouveau)" type="password" />
+      <span class="error" aria-live="polite"></span>
+       <div id="submitForm"><button type="submit" class="submit">Inscription</button></div>
+      </form>
+    </div>
+    </div>
+  </section>
+  {% endif %}
+
+</section>
+{% endblock %}
+
+{% block script %}
+{% endblock %}
+
+{% block header %}
+{% if 'landingpage' in path %}
+  <header id="header" role="banner" class="pam">
+         <img class="logo" src="/static/img/logo_hexa_grey_transparent_ab.png" title="Envoie du steak : achat et livraison de viande bio à domicile"/> 
+  </header>
+{% else %}
+   {% include "header.html" %}
+{% endif %}
+{% endblock %}
+
+
+{% block footer %}
+{% if "landingpage" in path %}
+  <footer id="footer">
+		<div>
+				 <img class="logo" src="/static/img/logo_simple_EDS.svg" />
+	  </div>
+	</footer>
+{% else %}
+  {% include 'footer.html' %}
+{% endif %}
+{% endblock %}
+
+{% block facebook %}
+{% if not "landingpage" in path %}
+  {% include 'facebook.html' %}
+{% endif %}
+{% endblock %}
+
+
+

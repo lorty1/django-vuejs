@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="reservations">
+    <div class="col-lg-12">
+        <div class="row">
+            <h1>Réservez votre salle</h1>
+<div id="placeHolder" class="col-md-12 col-lg-12" style="margin-left:50px; margin-top:40px;"></div>
+<div id="container">
+            <p class="day">Aujourd'hui</p>
+            {% for object in object_list %}
+               <div class="{{ object.date|date:'d'}} {{ object.date|date:'M'}} salle{{ object.episode.id}}"
+                   data-jour="{{ object.date|date:'d'}}" 
+                   data-mois="{{ object.date|date:'m'}}" 
+                   data-episode="{{ object.episode }}">
+                   <span class="line_hour">{{ object.hour }}</span>
+                   <span class="line_escape">{{ object.episode.escape }} - {{ object.episode }}</span>
+                   <span class="line_dispo {{object.public}}">{{ object.public }}</span>
+               </div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+$('#header').css('background', "url('/static/images/header2.jpeg') no-repeat 0 0 / 100%");
+$('#reservations').css('background-color', "#333");
+</script>
+{% endblock %}

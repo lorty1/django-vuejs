@@ -1,0 +1,12 @@
+{% extends "registration/registration_base.html" %}
+{% block title %}Créer un nouveau compte{% endblock %}
+{% block subcontent %}
+            <h4>Nouveau compte</h4>
+    <form method='post' action=''>{% csrf_token %}
+        {{ form }}
+        <input type="submit" class="red button" value="Envoyer l'email d'activation" />
+{% load facebook %}
+{% facebook_button %}
+    </form>
+
+ {% endblock %}

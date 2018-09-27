@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static admin_modify %}
+{% load url from future %}
+{% load admin_urls %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+{% endblock %}
+
+{% block bodyclass %}{{ opts.app_label }} zip_upload_form{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}"> {{ app_label|capfirst|escape }}</a>
+&rsaquo; {% if has_change_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+&rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <form enctype="multipart/form-data" method="post" action=".">{% csrf_token %}
+    <p>{% trans "Upload a ZIP archive with a set of pictures" %}</p>
+    <p><b>{% trans "Note: all pictures will be non-public by default, so you can edit its properties before publish they to the web." %}</b></p>
+    <div>
+      {% if form.errors %}
+        <p class="errornote">{% trans "Please correct the error below." %}</p>
+      {% endif %}
+      <fieldset class="module aligned">
+        {% for field in form %}
+          <div class="form-row{% if field.errors %} errors{% endif %}">
+	    <div>
+	      {% if field.errors %}
+	      <ul class="errorlist">
+		  {% for error in field.errors %}
+		    <li>{{ error }}</li>
+		  {% endfor %}
+	        </ul>
+	      {% endif %}
+              <label class="required">{{ field.label }}: </label>{{ field }}
+              {% if field.help_text %}<p class="help">{{ field.help_text|safe }}</p>{% endif %}
+	    </div>
+          </div>
+        {% endfor %}
+      </fieldset>
+      <div class="submit-row">
+	<input class="default" type="submit" name="_upload"
+               value="{% trans "Upload" %}" />
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

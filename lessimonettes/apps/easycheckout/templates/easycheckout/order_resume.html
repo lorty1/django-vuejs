@@ -1,0 +1,578 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block head %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+<style>
+#billingFormButton,
+#shippingFormButton {
+display:block;
+margin-top:2%;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<section id="order">
+  {% if user.is_authenticated %}
+  <!-- Start grid -->
+  <div class="grid-2">
+    <div>
+    <h2 class="txtcenter">Résumé de votre commande</h2>
+       <div id="order_resume">
+       <ul class="order_list">
+         {% for i in order.get_items %}
+            {% if forloop.first %}
+            {% if i.orientation.pk == 1 or i.orientation.pk == 2 %}
+                 <li class="resume_cow cowfunding cowfunding-title"><strong>Cowfunding {{ i.product.cow.title }}</strong></li>
+            {% endif %}
+            {% endif %}
+            {% if forloop.first %}
+            {% if i.orientation.pk == 1 or i.orientation.pk == 2 %}
+                <li class="resume_cow cowfunding"><strong>Colis équilibre : {{order.total_cowfunding }} €</strong></li>
+            {% endif %}
+            {% endif %}
+            {% if i.orientation.pk == 1 %}
+            <li class="resume_cow cowfunding"><img src="/{{ i.product.cow_orientation.image_thumbnail }}" /> {{i.quantity }} {{ i }}{{i.quantity|pluralize }}  - {{ i.basis_weight }}g</li>
+            {% endif %}
+         {% endfor %}
+
+ <li class="resume_cow cowfunding"><strong>Compléments cowfunding : {{order.total_complements|divide }} €</strong></li>
+
+         {% for i in order.get_items %}
+            {% if i.orientation.pk == 2 %}
+            <li class="resume_cow cowfunding"><img src="/{{ i.product.cow_orientation.image_thumbnail }}" /> {{ i.quantity }} {{ i }}{{i.quantity|pluralize }} - {{ i.basis_weight }}g - {{i.get_price|floatformat:"-2"}} €
+</li>
+            {% endif %}
+            {% if forloop.last %}
+            {% if i.orientation.pk == 1 or i.orientation.pk == 2 %}
+            <li class="resume_cow cowfunding"><strong>Frais de port : {{ order.calculate_cowfunding_delivery }} € </strong></li>
+            <li class="resume_cow cowfunding"><i>Mode de livraison : Chronofresh.</i></li>
+            <li class="resume_cow cowfunding"><i>Date de livraison :  à partir de {{ i.product.cow.date_shipping|date:"d/m/Y" }}</i></li>
+            {% comment %}<li class="resume_cow cowfunding">Vous serez livré entre 8h et 13h. Vous n’êtes pas là le jour de la livraison ? Pas de panique !<br /> Vous pouvez reprogrammer une livraison avec Chronofresh.</li>{% endcomment %}
+            {% endif %}
+            {% endif %}
+         {% endfor %}
+
+
+            <li class="resume_stock"><strong>Viande au détail</strong></li>
+         {% for i in order.get_items %}
+            {% if i.orientation.pk == 3 %}
+                <li class="resume_stock"><img src="{{ i.product.get_last_image_thumb }}" /> {{i.quantity }} {{ i }}{{i.quantity|pluralize }}  - {{ i.basis_weight }}g</li>
+            {% endif %}
+         {% endfor %}
+            <li class="resume_stock"><i>Frais de port : {{ order.calculate_stock_delivery }} € </i></li>
+
+            <li class="resume_dry"><strong>Conserves</strong></li>
+         {% for i in order.get_items %}
+            {% if i.orientation.pk == 5 %}
+                <li class="resume_dry"><img src="{{ i.product.get_last_image_thumb }}" />{{i.quantity }} {{ i }}{{i.quantity|pluralize }}  - {{ i.basis_weight }}g</li>
+            {% endif %}
+         {% endfor %}
+          <li class="resume_dry"><i>{% if not order.calculate_stock_delivery %}Frais de port : {{ order.calculate_dry_delivery }} €{% endif %}</i></li>
+          <li><hr /></li>
+        <li><strong>Total poids : {{ order.get_total_weight }} g </strong></li>
+        <li><strong>Total produits : {{ order.total_product|divide }} € </strong></li>
+        <li><strong>Total frais de port :  <span id="total_delivery">{{ order.get_delivery }}</span> € </strong></li>
+        <li><strong>Total :  <span id="total_amount">{{ order.total|divide }}</span> € </strong></li>
+       </ul>
+       
+      <div id="order_resume">
+       <ul class="order_list">
+        
+       <li class="code code-title"><strong>Utiliser un code promo</strong></li>
+       <li class="code code-title"><i>{% if credit != '' %}Vous disposez actuellement d'un avoir utilisable de {{ credit.total|divide }} euros. Vous pouvez abonder cet avoir en saisissant un nouveau code promo (ou code parrainage) ci-dessous.
+Si vous souhaitez utiliser votre avoir pour cette commande, merci de cocher la case « je souhaite utiliser mon avoir » juste avant de valider votre commande.{% else %}Vous ne disposez pas d'avoir utilisable pour l'instant sur votre compte. Vous pouvez abonder cet avoir en saisissant un nouveau code promo (ou code parrainage) ci-dessous.
+Si vous souhaitez utiliser votre avoir pour cette commande, merci de cocher la case « je souhaite utiliser mon avoir » juste avant de valider votre commande..{% endif %}</i></li>
+       <li class="code"><form action="/discount/use_discount/" method="POST">{% csrf_token %}
+         <input style="width:99%;" type="text" name="code" value="" />
+         <input class="order-button" type="submit" value="Utiliser ce code" />
+       </form>
+       </li>
+      </ul>
+     </div> 
+
+      </div>
+    </div>
+
+    <div>
+    <h2>Finalisez votre commande</h2>
+     <input id="order_pk" type="hidden" name="order_pk" val="{{ object.pk }}" />
+     <form id="order_form" action="/commande/resume/" method="post">
+      <input type="hidden" name="order" value="{{ order.pk }}">
+       {% csrf_token %}
+        <div >
+       {% for f in form %}
+           {% if f.name == 'billing_as_shipping' or f.name == 'cgv' or f.name == 'use_credit' or f.name == "use_precise_for_cf" or f.name == "use_precise_for_stock" or f.name == "use_precise_for_dry" %}
+              {% if f.name == 'cgv' %}
+            <div  id="div_id_{{f.name}}" style="margin-bottom:10px; margin-top:110px;" >
+              {% else %}
+            <div  id="div_id_{{f.name}}" style="margin-bottom:10px; margin-top:20px;" >
+              {% endif %}
+           {% else %}
+            <div  id="div_id_{{f.name}}" style="margin-bottom:10px;">
+               <label>{{ f.label }}</label>
+                   {{ f.errors }}
+           {% endif %}
+           {% if f.name == 'shipping_address' or f.name == 'billing_address' or f.name == 'wished_stock_delivery_hour' or f.name == 'wished_dry_delivery_hour' or f.name == 'wished_cf_delivery_hour'  %}
+                <div class="select">
+                   {{ f }}
+                </div>
+           {% else %}
+           {% if f.name == 'wished_stock_delivery_date' or f.name == 'wished_dry_delivery_date' or f.name == 'wished_cf_delivery_date' %}
+                <p><sup><i>La livraison standard (hors option) se fait entre 8h et 13h. Le jour de la livraison, vous recevrez un email et un sms vous précisant le créneau de livraison.<br />
+Si la date prévue de livraison ne vous convient pas, vous pouvez sélectionner un autre jour parmi les choix possibles ci-dessous.
+Vous aurez également la possibilité de reprogrammer une nouvelle livraison avec Chronofresh si vous n’êtes pas là le jour de la livraison.</i></sup></p>
+                <div class="select">
+                   {{ f }}
+                </div>
+           {% else %}
+           {% if f.name == 'billing_as_shipping' or f.name == 'cgv' or f.name == 'use_credit' or f.name == "use_precise_for_cf" or f.name == "use_precise_for_stock" or f.name == "use_precise_for_dry"  %}
+                   {{ f }}
+               {% if f.name == 'cgv' %}
+               <label id="cgv"><a href="/cgv/" target="_blank">{{ f.label }}</a></label>
+                   {{ f.errors }}
+               {% else %}
+                 {% if f.name == 'use_credit' %}
+                   <label id="use_credit">{{ f.label }} de {% if credit != '' %}{{ credit.total|divide }} €{% else %}0€ {% endif %}</label>
+                   {{ f.errors }}
+                 {% else %}
+                  {% if f.name == "use_precise_for_cf" or f.name == "use_precise_for_stock" or f.name == "use_precise_for_dry"  %}
+               <label>{{ f.label }}</label>
+                <p><sup><i>Vous êtes éligible à l’option « Precise » de Chronofresh !<br />
+Cette option à 5€ vous donne la possibilité de choisir un créneau de livraison de 2h, entre 9h et 22h.</i></sup></p>
+              {% else %}
+               <label>{{ f.label }}</label>
+               {% endif %}
+               {% endif %}
+               {% endif %}
+           {% else %}
+                <div>
+                   {{ f }}
+                </div>
+           {% endif %}
+               {% endif %}
+           {% endif %}
+           {% if f.name == 'shipping_address' %}
+             <p id="get_shipping_address">
+                <span class="name"></span><br />
+                <span class="address1"></span><br />
+                <span class="zip_code"></span><br />
+                <span class="city"></span><br />
+                <span class="phone"></span><br />
+             </p>
+             <a id="shippingFormButton" href="/commande/address/create_shipping/" class="order-button">Ajouter une adresse de livraison</a>
+              
+           {% else %}
+           {% if f.name == 'billing_address' %}
+             <p id="get_billing_address">
+                <span class="name"></span><br />
+                <span class="address1"></span><br />
+                <span class="zip_code"></span><br />
+                <span class="city"></span><br />
+                <span class="phone"></span><br />
+             </p>
+
+             <a id="billingFormButton" href="/commande/address/create_billing/" class="order-button">Ajouter une adresse de facturation</a>
+           {% endif %}
+           {% endif %}
+           </div>
+       {% endfor %}
+        </div>
+<div id="payboxForm">
+        <input type="submit" value="Valider ma commande"  />
+</div>
+      </form>
+
+
+    <form id="billing_form" class="modal" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.pk }}">
+    {{ billing_form }}
+     <div id="results"></div> <!-- errors go here -->
+     <button id="billing-button">Envoyer</button>
+    </form>
+
+    <form id="shipping_form" class="modal" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.pk }}">
+    {{ shipping_form }}
+     <div id="results"></div> <!-- errors go here -->
+     <button id="shipping-button">Envoyer</button>
+    </form>
+  </div>
+</div>
+  
+</div> <!-- End of grid -->
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+
+
+ </script>
+
+ <script src="/static/js/easycheckout.js"></script>
+ <script src="/static/js/precise.js"></script>
+ <script src="https://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+ <script>
+    $(document).ready(function() {
+        $('#id_delivery_date').datepicker(
+    {
+    altField: "#datepicker",
+    closeText: 'Fermer',
+    prevText: 'Précédent',
+    nextText: 'Suivant',
+    currentText: 'Aujourd\'hui',
+    monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+    monthNamesShort: ['Janv.', 'Févr.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'],
+    dayNames: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+    dayNamesShort: ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'],
+    dayNamesMin: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+    weekHeader: 'Sem.',
+    dateFormat: 'dd/mm/yy',
+      onSelect: function() {
+        $(this).change();
+      }
+    }
+    );
+    });
+    </script>
+<script>
+       $('.resume_cow').hide()
+       $('.resume_stock').hide()
+       $('.resume_dry').hide()
+       $('#div_id_wished_dry_delivery_date').hide()
+       $('#div_id_wished_cf_delivery_date').hide()
+       $('#div_id_wished_stock_delivery_date').hide()
+       $('#div_id_wished_dry_delivery_hour').hide()
+       $('#div_id_wished_cf_delivery_hour').hide()
+       $('#div_id_wished_stock_delivery_hour').hide()
+       $('#div_id_use_precise_for_cf').hide()
+       $('#div_id_use_precise_for_stock').hide()
+       $('#div_id_use_precise_for_dry').hide()
+{% for i in order.get_items %}
+   {% if i.orientation.pk == 1 %}
+       $('.resume_cow').show()
+       $('#div_id_wished_cf_delivery_date').show()
+       $('#div_id_use_precise_for_cf').show()
+       if($("#id_use_precise_for_cf").is(':checked') == true) {
+           $('#div_id_wished_cf_delivery_hour').show()
+       }
+   {% endif %} 
+   {% if i.orientation.pk == 3 %}
+       $('.resume_stock').show()
+       $('#div_id_wished_stock_delivery_date').show()
+       $('#div_id_use_precise_for_stock').show()
+       if($("#id_use_precise_for_stock").is(':checked') == true) {
+           $('#div_id_wished_stock_delivery_hour').show()
+       }
+   {% endif %} 
+   {% if i.orientation.pk == 5 %}
+       $('.resume_dry').show()
+       //$('#div_id_wished_dry_delivery_date').show()
+       //$('#div_id_use_precise_for_dry').show()
+       //if($("#id_use_precise_for_dry").is(':checked') == true) {
+       //    $('#div_id_wished_dry_delivery_hour').show()
+       //}
+   {% endif %} 
+{% endfor %}
+
+    {% if credit.total == 0 %}
+       $('#id_use_credit').hide()
+       $('.id_use_credit').hide()
+    {% endif %}
+    {% if credit == '' %}
+       $('#id_use_credit').hide()
+       $('.id_use_credit').hide()
+    {% endif %}
+     
+window.onload = function(){
+         var element = $('#div_id_wished_cf_delivery_date').find('option:selected'); 
+         var date_selected = element.attr("value");
+         search_delivery_slot({{order.pk}}, date_selected, 'cf') 
+};
+
+    $('#div_id_wished_cf_delivery_date').change(function(){
+         console.log('search slot v1')
+         var element = $(this).find('option:selected'); 
+         var date_selected = element.attr("value");
+         search_delivery_slot({{order.pk}}, date_selected, 'cf')
+          
+    })
+    var selectFirstDeliveryDate = function(){
+         console.log('Select first delivery date')
+         $("#div_id_wished_cf_delivery_date").val($("#div_id_wished_cf_delivery_date option:first").val());
+         var element = $('#div_id_wished_cf_delivery_date').find('option:selected'); 
+         var date_selected = element.attr("value");
+         search_delivery_slot({{order.pk}}, date_selected, 'cf')
+         $("#div_id_wished_stock_delivery_date").val($("#div_id_wished_stock_delivery_date option:first").val());
+         var element = $('#div_id_wished_stock_delivery_date').find('option:selected'); 
+         var date_selected = element.attr("value");
+         search_delivery_slot({{order.pk}}, date_selected, 'stock')
+    }
+    selectFirstDeliveryDate()
+
+    $('#div_id_wished_stock_delivery_date').change(function(){
+         var element = $(this).find('option:selected'); 
+         var date_selected = element.attr("value");
+         search_delivery_slot({{order.pk}}, date_selected, 'stock') 
+    })
+    $('#id_use_precise_for_cf').change(function(){
+        if(this.checked) {
+            var returnVal = $('#div_id_wished_cf_delivery_hour').show()
+            $(this).prop("checked", returnVal);
+        }
+        $('#id_use_precise_for_cf').val(this.checked);
+         var element = $('#div_id_wished_cf_delivery_date').find('option:selected'); 
+         var date_selected = element.attr("value");
+         search_delivery_slot({{order.pk}}, date_selected, 'cf') 
+           // update_order() 
+           // location.reload();  
+       });
+    $('#id_use_precise_for_stock').change(function(){
+        if(this.checked) {
+            var returnVal = $('#div_id_wished_stock_delivery_hour').show()
+            $(this).prop("checked", returnVal);
+        }
+        $('#id_use_precise_for_stock').val(this.checked); 
+         var element = $('#div_id_wished_stock_delivery_date').find('option:selected'); 
+         var date_selected = element.attr("value");
+         search_delivery_slot({{order.pk}}, date_selected, 'stock') 
+          //  update_order() 
+          //  location.reload();  
+       });
+    $('#id_use_precise_for_dry').change(function(){
+        if(this.checked) {
+            var returnVal = $('#div_id_wished_dry_delivery_hour').show()
+            $(this).prop("checked", returnVal);
+        }
+        $('#id_use_precise_for_dry').val(this.checked); 
+           search_delivery_slot({{order.pk}}) 
+        //    update_order() 
+        //    location.reload();  
+       });
+
+</script>
+<script>
+// The function actually applying the offset
+function offsetAnchor() {
+    if(location.hash.length !== 0) {
+        window.scrollTo(window.scrollX, window.scrollY - 200);
+    }
+}
+// This will capture hash changes while on the page
+window.addEventListener("order", offsetAnchor);
+
+// This is here so that when you enter the page with a hash,
+// it can provide the offset in that case too. Having a timeout
+// seems necessary to allow the browser to jump to the anchor first.
+window.setTimeout(offsetAnchor, 1);
+window.location.hash="order"
+
+
+$('#get_shipping_address').hide()
+$('#id_shipping_address').change(function() {
+ var pk = $(this).val()
+            $.ajax({
+                type: 'GET',
+                url: '/commande/api/shipping_address/'+pk+'/',
+                cache: false,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success : function(json) {
+                         var name = json['name']
+                         var phone_number = json['phone_number']
+                         var address1 = json['address1']
+                         var address2 = json['address2']
+                         var zip_code = json['zip_code']
+                         var city = json['city']
+                         $('#get_shipping_address .name').html(name)
+                         $('#get_shipping_address .phone').html(phone_number)
+                         $('#get_shipping_address .address1').html(address1)
+                         $('#get_shipping_address .zip_code').html(zip_code)
+                         $('#get_shipping_address .city').html(city)
+                         $('#get_shipping_address').show()
+                },
+                complete : function() {
+                  location.reload()
+                  //console.log('complete')
+                  //var element = $('#div_id_wished_cf_delivery_date').find('option:selected'); 
+                  //var date_selected = element.attr("value");
+                  //search_delivery_slot({{order.pk}}, date_selected, 'cf')
+                  //var element = $('#div_id_wished_stock_delivery_date').find('option:selected'); 
+                  //var date_selected = element.attr("value");
+                  //search_delivery_slot({{order.pk}}, date_selected, 'stock')
+                }
+              }); 
+})
+
+
+$('#get_billing_address').hide()
+$('#id_billing_address').change(function() {
+ var pk = $(this).val()
+            $.ajax({
+                type: 'GET',
+                url: '/commande/api/billing_address/'+pk+'/',
+                cache: false,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success : function(json) {
+                         var name = json['name']
+                         var phone_number = json['phone_number']
+                         var address1 = json['address1']
+                         var address2 = json['address2']
+                         var zip_code = json['zip_code']
+                         var city = json['city']
+                         $('#get_billing_address .name').html(name)
+                         $('#get_billing_address .phone').html(phone_number)
+                         $('#get_billing_address .address1').html(address1)
+                         $('#get_billing_address .zip_code').html(zip_code)
+                         $('#get_billing_address .city').html(city)
+                         $('#get_billing_address').show()
+                },
+                complete : function() {
+
+                }
+
+              }); 
+})
+var getShipping = function(pk) {
+            $.ajax({
+                type: 'GET',
+                url: '/commande/api/shipping_address/'+pk+'/',
+                cache: false,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success : function(json) {
+                         var name = json['name']
+                         var phone_number = json['phone_number']
+                         var address1 = json['address1']
+                         var address2 = json['address2']
+                         var zip_code = json['zip_code']
+                         var city = json['city']
+                         $('#get_shipping_address .name').html(name)
+                         $('#get_shipping_address .phone').html(phone_number)
+                         $('#get_shipping_address .address1').html(address1)
+                         $('#get_shipping_address .zip_code').html(zip_code)
+                         $('#get_shipping_address .city').html(city)
+                         $('#get_shipping_address').show()
+                },
+                complete : function() {
+                  var element = $('#div_id_wished_cf_delivery_date').find('option:selected'); 
+                  var date_selected = element.attr("value");
+                  search_delivery_slot({{order.pk}}, date_selected, 'cf')
+
+                  var element = $('#div_id_wished_stock_delivery_date').find('option:selected'); 
+                  var date_selected = element.attr("value");
+                  search_delivery_slot({{order.pk}}, date_selected, 'stock')
+                }
+
+
+              }); 
+}
+var shipping = $('#id_shipping_address').val()
+console.log('shipping')
+console.log(shipping)
+if(shipping != '0') {
+  getShipping(shipping)
+}
+
+var getBilling = function(pk) {
+            $.ajax({
+                type: 'GET',
+                url: '/commande/api/billing_address/'+pk+'/',
+                cache: false,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success : function(json) {
+                         var name = json['name']
+                         var phone_number = json['phone_number']
+                         var address1 = json['address1']
+                         var address2 = json['address2']
+                         var zip_code = json['zip_code']
+                         var city = json['city']
+                         $('#get_billing_address .name').html(name)
+                         $('#get_billing_address .phone').html(phone_number)
+                         $('#get_billing_address .address1').html(address1)
+                         $('#get_billing_address .zip_code').html(zip_code)
+                         $('#get_billing_address .city').html(city)
+                         $('#get_billing_address').show()
+                }
+              }); 
+}
+
+var billing = $('#id_billing_address').val()
+console.log(billing)
+if(billing != '0') {
+  getBilling(billing)
+}
+
+
+
+var get_prices = function(pk) {
+            $.ajax({
+                type: 'GET',
+                url: '/commande/api/get_order_prices/'+pk+'/',
+                cache: false,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success : function(json) {
+                    $("#total_weight").html(json['weight'])
+                     $("#total_complements").html(Math.round(json['total_complements'])/100)
+                     $("#total_stocks").html(Math.round(json['total_stocks'])/100)
+                     $("#total_conserves").html(Math.round(json['total_conserves'])/100)
+                     $("#total_product").html(Math.round(json['total_product'])/100)
+                     $("#total_amount").html(Math.round(json['total_amount'])/100)
+                     $("#stock_delivery").html(json['stocks_delivery'])
+                     $("#cowfunding_delivery").html(json['cowfunding_delivery'])
+                     $("#total_delivery").html(json['delivery'])
+                }
+              }); 
+}
+
+
+
+</script>
+{% endblock %}
+
+
+{% block header %}
+{% if 'landingpage' in path %}
+  <header id="header" role="banner" class="pam">
+         <img class="logo" src="/static/img/logo_hexa_grey_transparent_ab.png" title="Envoie du steak : achat et livraison de viande bio à domicile"/> 
+  </header>
+{% else %}
+   {% include "header.html" %}
+{% endif %}
+{% endblock %}
+
+
+{% block footer %}
+{% if "landingpage" in path %}
+  <footer id="footer">
+		<div>
+				 <img class="logo" src="/static/img/logo_simple_EDS.svg" />
+	  </div>
+	</footer>
+{% else %}
+  {% include 'footer.html' %}
+{% endif %}
+{% endblock %}
+
+{% block facebook %}
+{% if not "landingpage" in path %}
+  {% include 'facebook.html' %}
+{% endif %}
+{% endblock %}
+
+
+

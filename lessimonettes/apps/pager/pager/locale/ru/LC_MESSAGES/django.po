@@ -1,0 +1,44 @@
+# django-mentions translation to russian.
+# Copyright (C) 2011 Roman Sirotin
+# This file is distributed under the same license as the django-mentions package.
+# Roman Sirotin <web.elektro.net@gmail.com>, 2011.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.0.1\n"
+"Report-Msgid-Bugs-To: web.elektro.net@gmail.com\n"
+"POT-Creation-Date: 2011-10-04 22:48+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Roman Sirotin <web.elektro.net@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+
+#: cms_app.py:8 models.py:19
+msgid "mentions"
+msgstr "отзывы"
+
+#: models.py:10
+msgid "name"
+msgstr "имя"
+
+#: models.py:11
+msgid "Your name"
+msgstr "Ваше имя"
+
+#: models.py:12 models.py:18
+msgid "mention"
+msgstr "отзыв"
+
+#: models.py:13
+msgid "created on"
+msgstr "создано"
+
+#: models.py:14
+msgid "moderated"
+msgstr "проверено"

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>{{ product.title }} - {{ product.category.title }}</title>
+<meta name="description" content="{{ product.description }}"/>
+{% endblock %}
+
+{% block head %}
+<meta property="og:title" content="{{ product.title }} / {{ product.category.title }}" />
+<meta property="og:description" content="{{ product.description }}" />
+<meta property="og:image" content="{{ product.get_last_image }}" />
+
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<h1>Détail {{product.title }}</h1>
+
+<p class="txtcenter select_number" ><img class="moins" src="/static/icons/moins.svg" id="p4pA_moins" onclick="decreaseQuantity(event);" /><span id="p4pAQ">1</span><img class="plus" src="/static/icons/plus.svg"  id="p3pA_plus" onclick="increaseQuantity(event);" />
+<button id="product-button" data-pk="{{product.pk }}" data-name="{{product.name }}" data-weight="{{product.weight }}" onclick="addStockToCart_LP(event); return false;">Ajouter au panier</button>
+{% endblock %}
+
+{% block cart %}
+{% endblock %}
+
+    {% block script %}
+    {% endblock %}

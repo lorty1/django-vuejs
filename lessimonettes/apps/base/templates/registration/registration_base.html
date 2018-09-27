@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section id="registration">
+<div class="container">
+    <div class="row">
+        <div class="span6 offset3">
+
+    {% block subcontent %}
+    {% endblock %}
+
+        </div>
+    </div>
+</div>
+</section>
+{% endblock %}
+
+
+{% block scripts %}
+<script>          
+    $(document).ready(function(){
+        $('.footer1').css("display", "none"); 
+        $('.footer2').css("display", "none"); 
+  });
+</script>
+{% endblock %}

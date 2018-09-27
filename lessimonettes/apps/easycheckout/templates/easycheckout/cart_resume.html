@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block head %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+<style>
+.garbage i {
+float:none;
+margin-left:5%;
+margin-top:0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section id="order">
+  <section>
+    <h1 class="txtcenter">Votre panier</h1>
+  </section>
+  <!-- Start grid -->
+  <div>
+    <div>
+       <div id="order_resume">
+     <ul class="order_list">
+         {% for i in order.get_items %}
+            {% if forloop.first %}
+            {% if i.orientation.pk == 1 or i.orientation.pk == 2 %}
+                 <li class="resume_cow cowfunding cowfunding-title"><strong>Cowfunding {{ i.product.cow.title }}</strong></li>
+            {% endif %}
+            {% endif %}
+            {% if forloop.first %}
+            {% if i.orientation.pk == 1 or i.orientation.pk == 2 %}
+                <li class="resume_cow cowfunding"><strong>Colis équilibre : {{ order.total_cowfunding }} €</strong></li>
+            {% endif %}
+            {% endif %}
+            {% if i.orientation.pk == 1 %}
+            <li class="resume_cow cowfunding"><img src="/{{ i.product.cow_orientation.image_thumbnail }}" /> {{i.quantity }} {{ i }}{{i.quantity|pluralize }}  - {{ i.basis_weight }}g</li>
+            {% endif %}
+         {% endfor %}
+
+ <li class="resume_cow cowfunding"><strong>Compléments cowfunding : <span id="total_complements">{{order.total_complements|divide}}</span> €</strong></li>
+
+         {% for i in order.get_items %}
+            {% if i.orientation.pk == 2 %}
+            <li class="resume_cow cowfunding" id="item{{i.pk}}"><img src="/{{ i.product.cow_orientation.image_thumbnail }}" /> {{ i.quantity }} {{ i }}{{i.quantity|pluralize }} - {{ i.basis_weight }}g - {{ i.get_price|floatformat:"-2" }} € <span class="garbage" title="Supprimer l'article du panier" onclick="cart.remove({{i.product.pk}}); remove_order_cart({{i.pk}});"><i class="fa fa-trash-o"></i></span>
+</li>
+            {% endif %}
+            {% if forloop.last %}
+            {% if i.orientation.pk == 1 or i.orientation.pk == 2 %}
+            <li class="resume_cow cowfunding"><strong>Frais de port : <span id="cowfunding_delivery">{{ order.calculate_cowfunding_delivery }}</span> € </strong></li>
+            <li class="resume_cow cowfunding"><i>Mode de livraison : Chronofresh.</i></li>
+            <li class="resume_cow cowfunding"><i>Date de livraison :  {{ i.product.cow.date_shipping|date:"d/m/Y" }}</i></li>
+            <li class="resume_cow cowfunding">Vous serez livré entre 8h et 13h. Vous n’êtes pas là le jour de la livraison ? Pas de panique !<br /> Vous pouvez reprogrammer une livraison avec Chronofresh.</li>
+                  {% if 'landingpage' in path %}
+                    <li class="cow_button cowfunding complements"><a href="/produits/landingpage/cowfunding/{{ i.product.cow.slug }}/complements/">Compléter ce cowfunding</a></li>
+                   {% else %}
+                    <li class="cow_button cowfunding complements"><a href="/produits/cowfunding/{{ i.product.cow.slug }}/complements/">Compléter ce cowfunding</a></li>
+                  {% endif %}
+            {% endif %}
+            {% endif %}
+         {% endfor %}
+
+
+
+            <li class="resume_stock"><strong>Viande au détail</strong></li>
+         {% for i in order.get_items %}
+            {% if i.orientation.pk == 3 %}
+                <li class="resume_stock" id="item{{i.pk}}"><img src="{{ i.product.get_last_image_thumb }}" /> {{i.quantity }} {{ i }}{{i.quantity|pluralize }}  - {{ i.basis_weight }}g - {{ i.get_price|floatformat:"-2" }}€  <span class="garbage" title="Supprimer l'article du panier" onclick="cart.remove({{i.product.pk}}); remove_order_cart({{i.pk}});"><i class="fa fa-trash-o"></i></span></li>
+            {% endif %}
+         {% endfor %}
+            <li class="resume_stock"><i>Frais de port :  <span id="stock_delivery">{{ order.calculate_stock_delivery }}</span> € </i></li>
+
+            <li class="resume_dry"><strong>Conserves</strong></li>
+         {% for i in order.get_items %}
+            {% if i.orientation.pk == 5 %}
+                <li class="resume_dry"><img src="{{ i.product.get_last_image_thumb }}" />{{i.quantity }} {{ i }}{{i.quantity|pluralize }}  - {{ i.basis_weight }}g - {{i.get_price|floatformat:"-2"}}€  <span class="garbage" title="Supprimer l'article du panier" onclick="cart.remove({{i.product.pk}}); remove_order_cart({{i.pk}});"><i class="fa fa-trash-o"></i></span></li>
+            {% endif %}
+         {% endfor %}
+          <li class="resume_dry"><i>{% if not order.calculate_stock_delivery %}Frais de port : {{ order.calculate_dry_delivery }} €{% endif %}</i></li>
+          <li><hr /></li>
+        <li class="total"><strong>Total poids :  <span id="total_weight">{{ order.get_total_weight }}</span> g </strong></li>
+        <li class="total"><strong>Total produits : <span id="total_product"> {{ order.total_product|divide }}</span> € </strong></li>
+        <li class="total"><strong>Total frais de port : <span id="total_delivery"> {{ order.get_delivery }}</span> € </strong></li>
+        <li class="total total_amount"><strong>Total : <span id="total_amount"> {{ order.total|divide }}</span> € </strong></li>
+       </ul> 
+    </div>
+    <div class="grid-2">
+       <div class="cow_button empty">
+         <a href="#" onclick="cart.empty(); localStorage.clear();">Vider le panier</a>
+       </div>
+    <div class="cow_button">
+        {% if user.is_authenticated %}
+                  {% if 'landingpage' in path %}
+         <a href="/commande/landingpage/resume/">Commander</a>
+           {% else %}
+        <a href="/commande/resume/">Commander</a>
+           {% endif %}
+        {% else %}
+                  {% if 'landingpage' in path %}
+        <a href="/commande/landingpage/login/">Commander</a>
+           {% else %}
+        <a href="/commande/login/">Commander</a>
+           {% endif %}
+        {% endif %}
+
+    </div>
+
+    </div>
+    </div>
+
+    </div>
+</div>
+  
+</div> <!-- End of grid -->
+  </section>
+{% endblock %}
+
+{% block script %}
+<script>
+
+
+ </script>
+
+ <script src="/static/js/easycheckout.js"></script>
+ <script src="https://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+ <script>
+    </script>
+<script>
+       $('.resume_cow').hide()
+       $('.resume_stock').hide()
+       $('.resume_dry').hide()
+{% for i in order.get_items %}
+   {% if i.orientation.pk == 1 %}
+       $('.resume_cow').show()
+   {% endif %} 
+   {% if i.orientation.pk == 3 %}
+       $('.resume_stock').show()
+   {% endif %} 
+   {% if i.orientation.pk == 5 %}
+       $('.resume_dry').show()
+   {% endif %} 
+{% endfor %}
+</script>
+<script>
+$('#payboxForm input[type=submit]').hide();
+$('#id_cgv').click(function(){
+    if($(this).is(':checked')){
+        if($('#id_phone_number').val() != '') {
+        $('#payboxForm input[type=submit]').show();
+        } else {
+        $('#payboxForm input[type=submit]').hide();
+        } 
+    } else {
+        $('#payboxForm input[type=submit]').hide();
+    }
+});
+{% comment %}
+$('#id_phone_number').change(function(){
+    console.log('test')
+    if($('#id_cgv').is(':checked')){
+        $('#payboxForm input[type=submit]').show();
+    } else {
+        $('#payboxForm input[type=submit]').hide();
+    }
+})
+{% endcomment %}
+// The function actually applying the offset
+function offsetAnchor() {
+    if(location.hash.length !== 0) {
+        window.scrollTo(window.scrollX, window.scrollY - 200);
+    }
+}
+// This will capture hash changes while on the page
+window.addEventListener("order", offsetAnchor);
+
+// This is here so that when you enter the page with a hash,
+// it can provide the offset in that case too. Having a timeout
+// seems necessary to allow the browser to jump to the anchor first.
+window.setTimeout(offsetAnchor, 1);
+window.location.hash="order"
+
+
+console.log('cart')
+var remove_order_cart = function(pk) {
+   $.ajax({
+                type: 'POST',
+                url: '/commande/api/remove_order_cart/'+pk+'/',
+                complete: function() {$
+                    $('#item'+pk).hide();
+                    get_prices({{order.pk}})
+                },
+                dataType: 'json',
+                async:false
+              });
+}
+
+
+var get_prices = function(pk) {
+            $.ajax({
+                type: 'GET',
+                url: '/commande/api/get_prices/'+pk+'/',
+                cache: false,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success : function(json) {
+                    $("#total_weight").html(json['weight'])
+                     $("#total_complements").html(Math.round(json['total_complements'])/100)
+                     $("#total_stocks").html(Math.round(json['total_stocks'])/100)
+                     $("#total_conserves").html(Math.round(json['total_conserves'])/100)
+                     $("#total_product").html(Math.round(json['total_product'])/100)
+                     $("#total_amount").html(Math.round(json['total_amount'])/100)
+                     $("#stock_delivery").html(json['stocks_delivery'])
+                     $("#cowfunding_delivery").html(json['cowfunding_delivery'])
+                     $("#total_delivery").html(json['delivery'])
+                }
+              }); 
+}
+
+
+
+
+</script>
+{% endblock %}
+
+
+{% block header %}
+{% if 'landingpage' in path %}
+  <header id="header" role="banner" class="pam">
+         <img class="logo" src="/static/img/logo_hexa_grey_transparent_ab.png" title="Envoie du steak : achat et livraison de viande bio à domicile"/> 
+  </header>
+{% else %}
+   {% include "header.html" %}
+{% endif %}
+{% endblock %}
+
+
+{% block footer %}
+{% if "landingpage" in path %}
+  <footer id="footer">
+		<div>
+				 <img class="logo" src="/static/img/logo_simple_EDS.svg" />
+	  </div>
+	</footer>
+{% else %}
+  {% include 'footer.html' %}
+{% endif %}
+{% endblock %}
+
+{% block facebook %}
+{% if not "landingpage" in path %}
+  {% include 'facebook.html' %}
+{% endif %}
+{% endblock %}
+
+
+

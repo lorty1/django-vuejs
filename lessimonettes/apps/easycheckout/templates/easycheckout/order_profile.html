@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block head %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+{% endblock %}
+
+{% block content %}
+<section id="profile">
+  <section>
+    <h1>Mon profil</h1>
+  </section>
+  {% if user.is_authenticated %}
+  <!-- Start grid -->
+  <div id="order" class="grid-3">
+    <div>
+     <h4>Identifiant</h4>
+      <b>email: </b>{{ user.email }}
+      <hr />
+     <h4>Vos crédits en cours</h4>
+      <b>avoir: </b>{{ avoirs|divide }} euros
+    </div> 
+    <!-- End col --> 
+
+    <!-- start col --> 
+     <div>
+     <h4>Adresses de livraison</h4>
+       <ol>
+    {% for f in shipping_addresses %}
+    <li>
+            {{ f.name }}<br />
+            {{ f.address1 }}<br />
+            {{ f.address2 }}<br />
+            {{ f.zip_code }}<br />
+            {{ f.city }}
+            <form method="POST" action="/commande/address/shipping/delete/{{ f.pk  }}/">{% csrf_token %}
+             <input type="hidden" name="address" value="{{f.pk }}"/>
+             <input type="submit" style="background:#BF0000; border:none; color:white; font-family: 'Podkova', serif; padding:2%; margin-top:2%;"  value="Supprimer cette adresse" />
+            </form>
+    </li>
+    {% endfor %}
+       </ol>     
+    <a href="#shipping_form" class="order-button" rel="modal:open">Ajouter une adresse de livraison</a>
+  
+    <form id="shipping_form" class="modal" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.pk }}">
+    {{ shipping_form }}
+     <div id="results"></div> <!-- errors go here -->
+    <a href="" id="shipping-button">Envoyer</a>
+    </form>  
+    </div>  
+    <!-- End col -->
+
+    <!-- start col --> 
+     <div>
+        <h4>Adresses de facturation</h4>
+       <ol>
+    {% for f in billing_addresses %}
+    <li>
+            {{ f.name }}<br />
+            {{ f.address1 }}<br />
+            {{ f.address2 }}<br />
+            {{ f.zip_code }}<br />
+            {{ f.city }}
+            <form method="POST" action="/commande/address/billing/delete/{{ f.pk  }}/">{% csrf_token %}
+             <input type="hidden" name="address" value="{{f.pk }}"/>
+             <input type="submit" style="background:#BF0000; border:none; color:white; font-family: 'Podkova', serif; padding:2%; margin-top:2%;" class="cow_button" value="Supprimer cette adresse" />
+            </form>
+    </li>
+    {% endfor %}
+       </ol>     
+    <a href="#billing_form" class="order-button" rel="modal:open">Ajouter une adresse de facturation</a>
+
+    <form id="billing_form" class="modal" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.pk }}">
+    {{ billing_form }}
+     <div id="results"></div> <!-- errors go here -->
+    <a href="" id="billing-button">Envoyer</a>
+    </form>
+    </div> 
+    <!-- End col -->
+  </div> 
+  <!-- End of grid --> 
+</section>
+  {% endif %}
+{% endblock %}
+
+{% block script %}
+
+ <script src="/static/js/easycheckout.js"></script>
+
+ {% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  	<title></title>
+	<meta name="description" content=""/>
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+      <h1>Liste {{ category }}</h1>
+ 
+      {% for p in product_list %}
+          <a href="/produits/detail/{{ p.slug }}/">{{ p.title }}</a>
+      {% endfor %}
+      
+      {% for c in cookie_list %}
+          <a href="/produits/detail/{{ c.slug }}/">{{ c.title }}</a>
+      {% endfor %}
+{% endblock %}
+
+{% block script %}
+{% endblock %}

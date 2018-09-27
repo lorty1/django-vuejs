@@ -1,0 +1,10 @@
+{% extends "registration/registration_base.html" %}
+{% block title %}{% if account %}Activation réussie{% else %}Erreur lors de l'activation{% endif %}{% endblock %}
+{% block subcontent %}
+{% if account %}
+Merci {{ account }}, l'activation de votre compte est réussie !  Vous pouvez maintenant <a href='{% url auth_login %}'>vous connecter</a> en utilisant votre pseudonyme et le mot de passe que vous avez enregistrés.
+{% else %}
+Il semble que votre clé d'activation est invalide. Merci de réessayer.
+{% endif %}
+{% endblock %}
+

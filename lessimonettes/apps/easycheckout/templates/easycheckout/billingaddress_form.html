@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+#order.address {
+padding-bottom:25%;
+}
+label {display:block; }
+input {display:block; } 
+input[type="submit"] { margin-top:2%; } 
+</style>
+{% endblock %}
+
+{% block content %}
+<section id="order" class="address">
+<h1 class="txtcenter">Créer une adresse</h1>
+<form action="" method="post">{% csrf_token %}
+<p style="visibility:hidden;"><label for="id_user">Utilisateur :</label> <select name="user" id="id_user" required>
+  <option value="{{ user.pk }}" selected>{{user}}</option>
+</select></p>
+   <p><input type="text" name="name" maxlength="1024" required id="id_name" placeholder="Nom et prénom*" /></p>
+<p><input type="text" name="phone_number" maxlength="250" required id="id_phone_number" placeholder="Numéro de téléphone*" /></p>
+<p><input type="text" name="address1" maxlength="1024" required id="id_address1" placeholder="Adresse*" /></p>
+<p><input type="text" name="address2" maxlength="1024" id="id_address2" placeholder="Complément d'adresse" /></p>
+<p><input type="text" name="zip_code" maxlength="12" required id="id_zip_code" placeholder="Code postal*"/></p>
+<p><input type="text" name="city" maxlength="1024" required id="id_city" placeholder="Ville*" /></p>
+<p><input type="text" name="country" maxlength="255" id="id_country" placeholder="Pays" /></p>
+    <input type="submit" value="Sauvegarder" />
+</form>
+<div class="cow_button">
+        <a href="/commande/resume/">Revenir à ma commande</a>
+</div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+  $('html, body').animate({
+        scrollTop: $("#order").offset().top-250
+      }, 500);
+</script>
+{% endblock %}
+
+{% if 'landingpage' in path %}
+{% block header %}
+  <header id="header" role="banner" class="pam">
+         <img class="logo" src="/static/img/logo_hexa_grey_transparent_ab.png" title="Envoie du steak : achat et livraison de viande bio à domicile"/> 
+  </header>
+{% endblock %}
+
+{% block footer %}
+  <footer id="footer">
+		<div>
+				 <img class="logo" src="/static/img/logo_simple_EDS.svg" />
+	  </div>
+	</footer>
+
+{% endblock %}
+
+
+{% block facebook %}
+{% endblock %}
+{% endif %}
+

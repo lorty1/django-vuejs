@@ -1,0 +1,8 @@
+Vous venez de créer un compte sur {{ site.name }}. Si c'est une erreur, merci d'ignorer cet email et votre adresse email sera supprimée dans les {{ expiration_days }} jours.
+
+Pour activer ce compte, cliquer sur le lien suivant ou copier le dans votre navigateur dans les {{ expiration_days }} prochains jours.
+
+http://{{site.domain}}/compte/activate/{{ activation_key }}
+
+Cordialement,
+L'équipe de {{ site.name }}

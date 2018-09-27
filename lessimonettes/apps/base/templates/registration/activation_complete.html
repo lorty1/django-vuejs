@@ -1,0 +1,8 @@
+{% extends "registration/registration_base.html" %}
+{% block title %}Activation réussie{% endblock %}
+{% block subcontent %}
+Thanks, activation complete!  You may now <a href='{% url auth_login %}'>login</a> using the username and password you set at registration.
+Merci, l'activation de votre compte est réussie !  Vous pouvez maintenant <a href='{% url auth_login %}'>vous connecter</a> en utilisant votre pseudonyme et le mot de passe que vous avez enregistrés.
+{% endblock %}
+
+

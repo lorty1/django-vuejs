@@ -1,0 +1,40 @@
+{
+  "name": "lessimonettes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lessimonettes/apps/vuejs/assets/js/index.js",
+  "dependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "vue-loader": "^14.2.2",
+    "webpack": "^4.19.1"
+  },
+  "scripts": {
+    "start": "python ./bin/manage.py runserver 127.0.0.1:8000",
+    "build": "./node_modules/.bin/webpack --mode development --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "babel-loader": "^7.1.5",
+    "css-loader": "^1.0.0",
+    "style-loader": "^0.23.0",
+    "vue": "^2.5.17",
+    "vue-html-loader": "^1.2.4",
+    "vue-template-compiler": "^2.5.17",
+    "webpack-bundle-tracker": "^0.3.0",
+    "webpack-cli": "^3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pepourquier/lessimonettes/issues"
+  },
+  "homepage": "https://github.com/pepourquier/lessimonettes#readme"
+}
