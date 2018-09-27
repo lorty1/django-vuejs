@@ -28,13 +28,13 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+ https://github.com/lorty1/django-vuejs.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/pepourquier/lessimonettes/issues"
+    "url": "https://github.com/lorty1/django-vuejs.git"
   },
-  "homepage": "https://github.com/pepourquier/lessimonettes#readme"
+  "homepage": "https://github.com/lorty1/django-vuejs.git#readme"
 }
